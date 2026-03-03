@@ -1,0 +1,46 @@
+<main class="app-shell">
+  <header class="app-header">
+    <h1>Sudoku</h1>
+    <p>Completa la cuadricula sin duplicar numeros en filas, columnas o subcuadriculas.</p>
+  </header>
+
+  <section class="status-shell" [class.status-shell--solved]="gameState().status === 'solved'" aria-live="polite">
+    @if (gameState().status === 'solved') {
+      <p class="status-message">Juego resuelto. Excelente trabajo.</p>
+    } @else {
+      <p class="status-message">Estado: en progreso.</p>
+    }
+  </section>
+
+  <section class="board-shell" aria-label="Sudoku board">
+    <div class="board-grid" role="grid" aria-label="Sudoku 9x9">
+      @for (row of gameState().cells; track $index; let rowIndex = $index) {
+        <div class="board-row" role="row">
+          @for (cell of row; track $index; let colIndex = $index) {
+            <input
+              class="board-cell"
+              [class.board-cell--fixed]="cell.fixed"
+              [class.board-cell--editable]="!cell.fixed"
+              [class.board-cell--invalid]="cell.invalid"
+              [class.board-cell--subgrid-right]="(colIndex + 1) % 3 === 0 && colIndex < 8"
+              [class.board-cell--subgrid-bottom]="(rowIndex + 1) % 3 === 0 && rowIndex < 8"
+              [value]="displayValue(cell)"
+              [readOnly]="cell.fixed"
+              [attr.aria-label]="cellAriaLabel(cell)"
+              [attr.aria-invalid]="cell.invalid"
+              inputmode="numeric"
+              pattern="[1-9]"
+              maxlength="1"
+              (input)="onCellInput(rowIndex, colIndex, $event)"
+            />
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="controls-shell" aria-label="Game controls">
+    <button type="button" (click)="onNewGame()">Nuevo juego</button>
+    <button type="button" (click)="onResetGame()">Reiniciar</button>
+  </section>
+</main>
