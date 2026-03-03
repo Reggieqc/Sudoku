@@ -1,10 +1,6 @@
 import { Injectable, type Signal, signal } from '@angular/core';
-import {
-  type CellValue,
-  cloneBoard,
-  getRandomPuzzleSeed,
-  type SudokuBoard,
-} from './puzzle-seeds';
+import { type CellValue, cloneBoard, type SudokuBoard } from './puzzle-seeds';
+import { CURATED_PUZZLE_SOURCE, type PuzzleSource } from './puzzle-source';
 import { findConflicts, isSolved } from './sudoku-validator';
 
 const GRID_SIZE = 9;
@@ -38,6 +34,8 @@ export interface SudokuGameActions {
   providedIn: 'root',
 })
 export class SudokuGameService implements SudokuGameActions {
+  private readonly puzzleSource: PuzzleSource = CURATED_PUZZLE_SOURCE;
+
   private readonly stateSignal = signal<SudokuGameState>({
     cells: [],
     status: 'in_progress',
@@ -53,7 +51,10 @@ export class SudokuGameService implements SudokuGameActions {
   }
 
   newGame(): void {
-    const puzzleSeed = getRandomPuzzleSeed();
+    const puzzleSeed = this.puzzleSource.nextPuzzle({
+      lastPuzzleId: this.stateSignal().puzzleId || undefined,
+    });
+
     this.initialBoard = cloneBoard(puzzleSeed.initialBoard);
     this.stateSignal.set(this.createStateFromBoard(puzzleSeed.id, this.initialBoard));
   }
